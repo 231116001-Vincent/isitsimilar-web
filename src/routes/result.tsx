@@ -60,11 +60,11 @@ export default function ResultPage() {
         </div>
       </div>
 
-      <Collapsible onOpenChange={(open) => setOpenHighlight(open)}>
-        <div className="flex flex-col gap-2">
-          <h2>Highlight</h2>
-
+      {formattedResult.data.highlights.length > 0 && (
+        <Collapsible onOpenChange={(open) => setOpenHighlight(open)}>
           <div className="flex flex-col gap-4">
+            <h2>Highlight</h2>
+
             <SentenceCard
               sentence1={formattedResult.data.highlights[0].doc1Sentence}
               sentence2={formattedResult.data.highlights[0].doc2Sentence}
@@ -92,28 +92,17 @@ export default function ResultPage() {
               }
             />
           </div>
-        </div>
-      </Collapsible>
+        </Collapsible>
+      )}
 
-      <Collapsible onOpenChange={(open) => setOpenSimilar(open)}>
-        <div className="flex flex-col gap-4">
-          <h2>Kalimat Serupa</h2>
+      <div className="flex flex-col gap-4">
+        <h2>Kalimat Serupa</h2>
 
-          {formattedResult.data.sideBySide.map(
-            (val, idx) =>
-              idx <= 2 && (
-                <SentenceCard
-                  sentence1={val.doc1Sentence}
-                  sentence2={val.doc2Sentence}
-                  similarity={val.similarity}
-                />
-              )
-          )}
-
-          <CollapsibleContent className="flex flex-col gap-4">
+        {formattedResult.data.sideBySide.length > 0 ? (
+          <Collapsible onOpenChange={(open) => setOpenSimilar(open)}>
             {formattedResult.data.sideBySide.map(
               (val, idx) =>
-                idx > 2 && (
+                idx <= 2 && (
                   <SentenceCard
                     sentence1={val.doc1Sentence}
                     sentence2={val.doc2Sentence}
@@ -121,17 +110,36 @@ export default function ResultPage() {
                   />
                 )
             )}
-          </CollapsibleContent>
 
-          <CollapsibleTrigger
-            render={
-              <Button variant="outline">
-                {!openSimilar ? "Lihat Semua" : "Sembunyikan"}
-              </Button>
-            }
-          />
-        </div>
-      </Collapsible>
+            <CollapsibleContent className="flex flex-col gap-4">
+              {formattedResult.data.sideBySide.map(
+                (val, idx) =>
+                  idx > 2 && (
+                    <SentenceCard
+                      sentence1={val.doc1Sentence}
+                      sentence2={val.doc2Sentence}
+                      similarity={val.similarity}
+                    />
+                  )
+              )}
+            </CollapsibleContent>
+
+            <CollapsibleTrigger
+              render={
+                <Button variant="outline">
+                  {!openSimilar ? "Lihat Semua" : "Sembunyikan"}
+                </Button>
+              }
+            />
+          </Collapsible>
+        ) : (
+          <div className="h-32 flex justify-center items-center">
+            <p className="text-muted-foreground">
+              Dokumen tidak memiliki kalimat yang mirip.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

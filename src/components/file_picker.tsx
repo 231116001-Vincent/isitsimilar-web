@@ -1,6 +1,6 @@
 import { formatFileSize } from "@/lib/utils";
 import { LucideCloudUpload, LucideFile } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, type DragEvent } from "react";
 
 export default function FilePicker({
   selectedFile,
@@ -9,6 +9,21 @@ export default function FilePicker({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [document, setDocument] = useState<File>();
+
+  const handleDrop = (e: DragEvent) => {
+    e.preventDefault();
+
+    if (!e.dataTransfer) return;
+
+    const file = [...e.dataTransfer.items]
+      .map((item) => item.getAsFile())
+      .filter((file) => file)[0];
+
+    if (!file) return;
+
+    setDocument(file);
+    selectedFile(file);
+  };
 
   const onClick = () => {
     const input = inputRef.current;
@@ -25,27 +40,27 @@ export default function FilePicker({
   };
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={onClick}
-        className="aspect-2/1 border-2 border-dashed rounded-xl flex justify-center items-center"
-      >
-        {document ? (
-          <div className="flex flex-col items-center text-foreground">
-            <LucideFile size={18} className="mb-2" />
-            <span className="text-base font-medium">{document.name}</span>
-            <span className="text-muted-foreground">
-              {formatFileSize(document.size)}
-            </span>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center font-medium text-muted-foreground">
-            <LucideCloudUpload />
-            Upload Dokumen
-          </div>
-        )}
-      </button>
+    <label
+      onClick={onClick}
+      onDrop={handleDrop}
+      onDrag={(e) => e.preventDefault()}
+      onDragOver={(e) => e.preventDefault()}
+      className="aspect-2/1 border-2 border-dashed rounded-xl flex justify-center items-center"
+    >
+      {document ? (
+        <div className="flex flex-col items-center text-foreground">
+          <LucideFile size={18} className="mb-2" />
+          <span className="text-base font-medium">{document.name}</span>
+          <span className="text-muted-foreground">
+            {formatFileSize(document.size)}
+          </span>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center font-medium text-muted-foreground">
+          <LucideCloudUpload />
+          Upload Dokumen
+        </div>
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -54,6 +69,6 @@ export default function FilePicker({
         id="document1"
         className="hidden"
       />
-    </>
+    </label>
   );
 }
